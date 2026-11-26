@@ -28,7 +28,7 @@ jobs:
       - name: Prepare Deployment Directory
         run: |
           mkdir -p ./deploy
-          cp ./target/wasm32-unknown-unknown/release/snake.wasm ./deploy/snake.wasm
+          cp ./target/wasm32-unknown-unknown/release/space-invaders.wasm ./deploy/space-invaders.wasm
           cp index.html ./deploy/
 
       - name: Deploy
