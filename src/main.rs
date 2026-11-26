@@ -5,7 +5,7 @@ use crate::models::{EntityTrait};
 mod models;
 
 fn add_squares(enemies: &mut Vec<models::Enemy>) {
-    if rand::gen_range(0, 99) >= 97 {
+    if rand::gen_range(0, 99) >= 95 {
         let size = rand::gen_range(16.0, 64.0);
         enemies.push(models::Enemy {
             entity: models::Entity {
