@@ -37,6 +37,23 @@ fn draw_entities(enemies: &Vec<models::Enemy>, player: &models::Player) {
     player.draw_entity();
 }
 
+fn restart_game(enemies: &mut Vec<models::Enemy>, player: &mut models::Player) {
+    enemies.clear();
+    player.reset();
+}
+
+fn display_gameover() {
+    let text = "GAME OVER!";
+    let text_dimensions = measure_text(text, None, 50, 1.0);
+    draw_text(
+        text,
+        screen_width() / 2.0 - text_dimensions.width / 2.0,
+        screen_height() / 2.0,
+        50.0,
+        RED,
+    );
+}
+
 #[macroquad::main("Game")]
 async fn main() {
     rand::srand(miniquad::date::now() as u64);
@@ -54,15 +71,17 @@ async fn main() {
 
     loop {
         clear_background(WHITE);
-
         let delta_time = get_frame_time();
 
+        if gameover && is_key_pressed(KeyCode::Space) { 
+            gameover = false;
+            restart_game(&mut enemies, &mut player);
+        }
+        if gameover { display_gameover(); }
+
         add_squares(&mut enemies);
-
         if !gameover { move_entities(&mut enemies, &mut player, delta_time) }
-
         if player.has_collision(&enemies) { gameover = true; }
-
         draw_entities(&enemies, &player);
 
         next_frame().await

@@ -67,6 +67,11 @@ impl Player {
     pub fn has_collision(&self, others: &Vec<Enemy>) -> bool {
         others.iter().any(|enemy| self.collides_with(&enemy))
     }
+
+    pub fn reset(&mut self) {
+        self.entity.x = screen_width() / 2.0;
+        self.entity.y = screen_height() / 2.0;
+    }
 }
 
 pub struct Enemy {
