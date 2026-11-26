@@ -1,15 +1,15 @@
-fn main() {
-    println!("Hello, world!");
+use macroquad::prelude::*;
 
-    let name = "Brandon";
-    let mut count = 0;
-    for i in 1..=5 {
-        count = i;
-        println!("Hello, {name}! (count: {count})");
-    }
+#[macroquad::main("MyGame")]
+async fn main() {
+    loop {
+        clear_background(RED);
 
-    match count {
-        count if count % 2 == 0 => println!("count is even!"),
-        _ => println!("count is odd!"),
+        draw_line(40.0, 40.0, 100.0, 200.0, 15.0, BLUE);
+        draw_rectangle(screen_width() / 2.0 - 60.0, 100.0, 120.0, 60.0, GREEN);
+
+        draw_text("Hello, Macroquad!", 20.0, 20.0, 30.0, DARKGRAY);
+
+        next_frame().await
     }
 }
