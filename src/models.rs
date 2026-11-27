@@ -1,11 +1,12 @@
 use macroquad::prelude::*;
 
-#[derive(Debug)]
+#[derive(Default, Debug)]
 pub struct Entity {
     pub size: f32,
     pub speed: f32,
     pub x: f32,
     pub y: f32,
+    pub to_remove: bool,
 }
 
 pub trait EntityTrait {
@@ -72,6 +73,10 @@ impl Player {
         self.entity.x = screen_width() / 2.0;
         self.entity.y = screen_height() / 2.0;
     }
+
+    pub fn bullet_pos(&self) -> (f32, f32) {
+        (self.entity.x, self.entity.y - self.entity.size / 2.0)
+    }
 }
 
 pub struct Enemy {
@@ -101,3 +106,51 @@ impl Enemy {
     }
 }
 
+pub struct Bullet {
+    pub entity: Entity,
+}
+
+impl EntityTrait for Bullet {
+    fn draw_entity(&self) {
+        let bullet = &self.entity;
+        draw_rectangle(
+            bullet.x - bullet.size / 2.0,
+            bullet.y - bullet.size / 2.0,
+            bullet.size,
+            bullet.size,
+            RED,
+        );
+    }
+
+    fn move_entity(&mut self, delta_time: f32) {
+        self.entity.y += self.entity.speed * delta_time;
+    }
+}
+
+impl Bullet {
+    fn update_collision(&mut self, other: &mut Enemy) {
+        let bullet = &self.entity;
+        let my_rect = Rect {
+            x: bullet.x - bullet.size / 2.0,
+            y: bullet.y - bullet.size / 2.0,
+            w: bullet.size,
+            h: bullet.size,
+        };
+        let enemy = &other.entity;
+        let enemy_rect = Rect {
+            x: enemy.x - enemy.size / 2.0,
+            y: enemy.y - enemy.size / 2.0,
+            w: enemy.size,
+            h: enemy.size,
+        };
+
+        if my_rect.overlaps(&enemy_rect) {
+            self.entity.to_remove = true;
+            other.entity.to_remove = true;
+        }
+    }
+
+    pub fn update_collisions(&mut self, others: &mut Vec<Enemy>) {
+        others.iter_mut().for_each(|enemy| self.update_collision(enemy))
+    }
+}
