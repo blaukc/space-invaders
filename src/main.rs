@@ -61,12 +61,15 @@ fn draw_entities(enemies: &Vec<models::Enemy>, player: &models::Player, bullets:
     }
 }
 
-fn bullet_collisions(enemies: &mut Vec<models::Enemy>, bullets: &mut Vec<models::Bullet>) {
+fn bullet_collisions(enemies: &mut Vec<models::Enemy>, bullets: &mut Vec<models::Bullet>) -> i32 {
+    let prev_num_enemies = enemies.len();
     for bullet in &mut *bullets {
         bullet.update_collisions(enemies);
     }
     bullets.retain(|bullet| !bullet.entity.to_remove);
     enemies.retain(|enemy| !enemy.entity.to_remove);
+
+    (prev_num_enemies - enemies.len()) as i32
 }
 
 fn restart_game(enemies: &mut Vec<models::Enemy>, player: &mut models::Player, bullets: &mut Vec<models::Bullet>) {
@@ -87,10 +90,21 @@ fn display_gameover() {
     );
 }
 
+fn display_score(score: i32) {
+    draw_text(
+        format!("Score: {}", score).as_str(),
+        10.0,
+        35.0,
+        25.0,
+        BLACK,
+    );
+}
+
 #[macroquad::main("Game")]
 async fn main() {
     rand::srand(miniquad::date::now() as u64);
     let mut gameover = false;
+    let mut score: i32 = 0;
 
     let mut enemies: Vec<models::Enemy> = vec![];
     let mut player = models::Player {
@@ -111,6 +125,7 @@ async fn main() {
 
         if gameover && is_key_pressed(KeyCode::Space) { 
             gameover = false;
+            score = 0;
             restart_game(&mut enemies, &mut player, &mut bullets);
         }
         if gameover { display_gameover(); }
@@ -121,9 +136,11 @@ async fn main() {
             add_bullets(&mut bullets, &player);
             move_entities(&mut enemies, &mut player, &mut bullets, delta_time) 
         }
-        bullet_collisions(&mut enemies, &mut bullets);
+        score += bullet_collisions(&mut enemies, &mut bullets) * 100;
         if player.has_collision(&enemies) { gameover = true; }
+
         draw_entities(&enemies, &player, &bullets);
+        display_score(score);
 
         next_frame().await
     }
